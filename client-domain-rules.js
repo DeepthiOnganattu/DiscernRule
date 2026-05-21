@@ -1,0 +1,1 @@
+window.CLIENT_DOMAIN_RULES = window.CLIENT_DOMAIN_RULES || [];

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discern Rules Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Oracle Cerner</p>
+      <h1>Discern Rules Assistant</h1>
+    </div>
+    <div class="source-pill">
+      <span id="standardCount">0</span> standard rules loaded
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="workspace" aria-labelledby="searchHeading">
+      <div class="panel-header">
+        <div>
+          <h2 id="searchHeading">Search request</h2>
+          <p id="summaryLine" class="muted">Ready</p>
+        </div>
+        <div class="actions compact">
+          <button id="searchButton" class="primary" type="button">Search</button>
+          <button id="resetButton" class="secondary" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="search-grid">
+        <label class="field wide">
+          <span>Request details</span>
+          <textarea id="requestDetails" rows="7" placeholder="Example: Alert provider if VTE assessment is not completed within 8 hours of admission."></textarea>
+        </label>
+
+        <label class="field">
+          <span>Rule name or keywords</span>
+          <input id="keywordInput" type="search" placeholder="VTE platelet, ADVSR_VTE, methotrexate">
+        </label>
+
+        <label class="field">
+          <span>Requested solution or domain</span>
+          <input id="draftDomain" type="text" placeholder="Pharmacy, ASP, VTE, Nursing">
+        </label>
+
+        <label class="field">
+          <span>Search scope</span>
+          <select id="scopeSelect">
+            <option value="all">Standard and client domains</option>
+            <option value="standard">Standard rules only</option>
+            <option value="client">Client domains only</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Solution or domain</span>
+          <select id="domainSelect">
+            <option value="all">All</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>EVOKE</span>
+          <select id="evokeSelect">
+            <option value="all">All</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Trigger context</span>
+          <select id="triggerContext">
+            <option value="auto">Auto from request</option>
+            <option value="signorder">Incoming order / sign event</option>
+            <option value="order_event">Background order event</option>
+            <option value="clinical_event">Clinical event / documentation</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Expected action</span>
+          <select id="actionType">
+            <option value="provider_alert">Provider alert</option>
+            <option value="soft_stop">Soft-stop alert</option>
+            <option value="worklist">Worklist / follow-up</option>
+            <option value="log_only">Log only</option>
+          </select>
+        </label>
+
+        <div class="field check-row">
+          <label class="check">
+            <input id="includeExpired" type="checkbox">
+            <span>Include expired standard rules</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="result-toolbar">
+        <div class="metrics">
+          <div>
+            <span class="metric-value" id="totalResults">0</span>
+            <span class="metric-label">matches</span>
+          </div>
+          <div>
+            <span class="metric-value" id="strongResults">0</span>
+            <span class="metric-label">strong</span>
+          </div>
+          <div>
+            <span class="metric-value" id="clientCount">0</span>
+            <span class="metric-label">client rules</span>
+          </div>
+        </div>
+        <div class="actions compact">
+          <button id="exportButton" class="secondary" type="button" disabled>Export results</button>
+        </div>
+      </div>
+
+      <div id="verdict" class="verdict neutral">
+        Enter a rule request or keyword to search.
+      </div>
+
+      <div id="results" class="results" aria-live="polite"></div>
+      <section id="draftPanel" class="draft-panel" aria-live="polite" hidden></section>
+    </section>
+
+    <aside class="sidebar">
+      <section class="panel" aria-labelledby="clientHeading">
+        <div class="panel-header stacked">
+          <div>
+            <h2 id="clientHeading">Client domains</h2>
+            <p class="muted">Local browser data</p>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Domain name</span>
+          <input id="clientDomain" type="text" placeholder="Client A - Pharmacy">
+        </label>
+
+        <label class="field">
+          <span>Upload CSV, JSON, or text</span>
+          <input id="clientFile" type="file" accept=".csv,.txt,.json">
+        </label>
+
+        <label class="field">
+          <span>Paste client rule list</span>
+          <textarea id="clientPaste" rows="8" placeholder="Rule Name,Domain,Status,Purpose&#10;CLIENT_VTE_ALERT,Client A,PRODUCTION,Checks VTE order status"></textarea>
+        </label>
+
+        <div class="actions">
+          <button id="addClientButton" class="primary" type="button">Add client rules</button>
+          <button id="clearClientButton" class="danger" type="button">Clear client rules</button>
+        </div>
+        <div id="clientStatus" class="status-text">No client rules loaded.</div>
+      </section>
+
+      <section class="panel" aria-labelledby="sourcesHeading">
+        <div class="panel-header stacked">
+          <div>
+            <h2 id="sourcesHeading">Sources</h2>
+            <p class="muted">Workbook import</p>
+          </div>
+        </div>
+        <dl class="source-list">
+          <div>
+            <dt>Standard source</dt>
+            <dd>Discern_Rules_Reference_Build.xlsx</dd>
+          </div>
+          <div>
+            <dt>Default filter</dt>
+            <dd>Non-expired standard rules</dd>
+          </div>
+          <div>
+            <dt>Client storage</dt>
+            <dd>Shared file plus browser imports</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </main>
+
+  <script src="discern-rules-data.js"></script>
+  <script src="client-domain-rules.js"></script>
+  <script src="discern-kb.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
